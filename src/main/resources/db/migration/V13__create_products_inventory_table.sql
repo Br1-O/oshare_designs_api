@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS products_inventory(
+id BIGINT auto_increment PRIMARY KEY NOT NULL,
+product_id BIGINT NOT NULL,
+size ENUM ('XS', 'S', 'M', 'L', 'XL') NOT NULL,
+color_name VARCHAR(25) NOT NULL,
+color_code VARCHAR(20) NOT NULL,
+quantity int(5) NOT NULL,
+in_stock TINYINT(1) NOT NULL DEFAULT 1,
+added_at DATE DEFAULT CURRENT_DATE,
+updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+FOREIGN KEY (product_id) REFERENCES products(id)
+);
