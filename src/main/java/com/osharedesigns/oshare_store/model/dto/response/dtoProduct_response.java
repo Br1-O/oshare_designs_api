@@ -4,7 +4,7 @@ import com.osharedesigns.oshare_store.model.domain.Product;
 
 import java.math.BigDecimal;
 
-public record dtoProduct_read(
+public record dtoProduct_response(
         Long id,
         String name,
         String description,
@@ -14,7 +14,7 @@ public record dtoProduct_read(
         String from_country,
         String material){
 
-    public dtoProduct_read(Product product){
+    public dtoProduct_response(Product product){
         this(product.getId(), product.getName(), product.getDescription(), product.getLinks(),
                 product.getPrice(), product.getRating(), product.getFrom_country(), product.getMaterial());
     }

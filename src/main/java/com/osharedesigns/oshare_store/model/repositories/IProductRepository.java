@@ -9,7 +9,4 @@ import org.springframework.data.repository.query.Param;
 
 public interface IProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByInCatalogueTrue(Pageable pagination);
-
-    @Query(value = "CALL getSingleProductFullData(:productId)", nativeQuery = true)
-    Object[] getProductFullData(@Param("productId") Long productId);
 }

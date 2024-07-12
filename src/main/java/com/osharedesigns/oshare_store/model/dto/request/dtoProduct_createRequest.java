@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 
 import java.math.BigDecimal;
 
-public record dtoProduct_create(
+public record dtoProduct_createRequest(
     @NotBlank(message = "¡Este campo no puede estar vacio!")
     @Pattern(regexp = "^[a-zA-Z ]+$", message = "¡Sólo se aceptan letras!")
     String name,
@@ -21,6 +21,18 @@ public record dtoProduct_create(
     @Pattern(regexp = "^[a-zA-Z ]+$", message = "¡Sólo se aceptan letras!")
     String from_country,
     @Pattern(regexp = "^[a-zA-Z ]+$", message = "¡Sólo se aceptan letras!")
-    String material
+    String material,
+    @NotBlank(message = "¡Este campo no puede estar vacio!")
+    @Pattern(regexp = "^[0-9,]{2,10}+$", message = "¡Sólo se aceptan caracteres numéricos y comas!")
+    BigDecimal discount,
+    @NotBlank(message = "¡Este campo no puede estar vacio!")
+    @Pattern(regexp = "^[a-zA-Z ]+$", message = "¡Sólo se aceptan letras!")
+     String tags,
+    @NotBlank(message = "¡Este campo no puede estar vacio!")
+    @Pattern(regexp = "^[a-zA-Z ]+$", message = "¡Sólo se aceptan letras!")
+    String categories,
+    @NotBlank(message = "¡Este campo no puede estar vacio!")
+    String image_url
     )
+
 {}

@@ -1,50 +1,89 @@
 package com.osharedesigns.oshare_store.controller;
 
 import com.osharedesigns.oshare_store.model.domain.Product;
-import com.osharedesigns.oshare_store.model.dto.response.dtoProductFullData_read;
-import com.osharedesigns.oshare_store.model.dto.response.dtoProduct_read;
+import com.osharedesigns.oshare_store.model.dto.request.dtoProduct_createRequest;
+import com.osharedesigns.oshare_store.model.dto.request.dtoProduct_updateRequest;
+import com.osharedesigns.oshare_store.model.dto.response.dtoProductFullData_response;
 import com.osharedesigns.oshare_store.model.repositories.IProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
-@RequestMapping("/producto")
+@RequestMapping("/productos")
 public class ProductController {
 
 
     //dependency injection via constructor
-
     private final IProductRepository productRepository;
-
     public ProductController(IProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
+    //create method
+    @PostMapping("/agregar")
+    public ResponseEntity<dtoProductFullData_response> create(@RequestBody dtoProduct_createRequest dtoProduct_createRequest, UriComponentsBuilder UriComponentsBuilder){
+
+        Product newProduct = productRepository.save(new Product(dtoProduct_createRequest));
+
+        dtoProductFullData_response dtoProductFullData_response = new dtoProductFullData_response(newProduct);
+
+        URI url = UriComponentsBuilder.path("/productos/{id}").buildAndExpand(newProduct.getId()).toUri();
+
+        return ResponseEntity.created(url).body(dtoProductFullData_response);
+    }
+
     //READ ALL method
-    @GetMapping("/mostrar")
-    public ResponseEntity<Page<dtoProduct_read>> show(@PageableDefault(size = 4, sort="name") Pageable pagination){
+    @GetMapping("/todos")
+    public ResponseEntity<Page<dtoProductFullData_response>> showAll(@PageableDefault(size = 4, sort="name") Pageable pagination){
 
-        return ResponseEntity.ok(productRepository.findByInCatalogueTrue(pagination).map(dtoProduct_read::new));
+        Page<Product> productsList = productRepository.findByInCatalogueTrue(pagination);
+
+        return ResponseEntity.ok(productsList.map(dtoProductFullData_response::new));
     }
 
-    @GetMapping("/mostrar/{id}")
+
+    @GetMapping("/{id}")
     @Transactional
-    public ResponseEntity<dtoProductFullData_read> showOne(@PathVariable long id){
+    public ResponseEntity<dtoProductFullData_response> showOne(@PathVariable long id){
 
-        Object[] result = productRepository.getProductFullData(id);
+        Product product = productRepository.getReferenceById(id);
 
-        Object[] productData = (Object[]) result[0];
+        dtoProductFullData_response dtoProductFullData_response = new dtoProductFullData_response(product);
 
-        dtoProductFullData_read dtoProductFullData_read = new dtoProductFullData_read(productData);
-
-        return ResponseEntity.ok(dtoProductFullData_read);
+        return ResponseEntity.ok(dtoProductFullData_response);
     }
 
+    //LOGICAL DELETE method, sets "inCatalogue" as false
+    @DeleteMapping("/borrar")
+    //@Secured("ROLE_ADMIN")
+    @Transactional
+    public ResponseEntity delete(@RequestParam long id){
+        //get reference of product by id from db
+        Product product = productRepository.getReferenceById(id);
+        //set inCatalogue as false
+        product.setInCatalogue(false);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    //UPDATE method
+    @PutMapping("/editar")
+    @Transactional
+    public ResponseEntity<dtoProductFullData_response> edit(@RequestParam long id, @RequestBody dtoProduct_updateRequest dtoProduct_updateRequest){
+        //get reference of product by id from db
+        Product product = productRepository.getReferenceById(id);
+        //use update method from Product class passing the dtoProduct_updateRequest as parameter
+        product.updateData(dtoProduct_updateRequest);
+
+        dtoProductFullData_response dtoProductFullData_response = new dtoProductFullData_response(product);
+
+        return ResponseEntity.ok(dtoProductFullData_response);
+    }
 }
